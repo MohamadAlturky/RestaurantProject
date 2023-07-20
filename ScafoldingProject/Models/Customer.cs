@@ -1,23 +1,29 @@
-﻿namespace ScafoldingProject.Models;
+﻿using System;
+using System.Collections.Generic;
 
-public partial class Customer
+namespace ScafoldingProject.Models
 {
-	public Customer()
-	{
-		Reservations = new HashSet<Reservation>();
-	}
+    public partial class Customer
+    {
+        public Customer()
+        {
+            ApplicationUsers = new HashSet<ApplicationUser>();
+            Reservations = new HashSet<Reservation>();
+        }
 
-	public long Id { get; set; }
-	public int SerialNumber { get; set; }
-	public int Balance { get; set; }
-	public string FirstName { get; set; } = null!;
-	public string LastName { get; set; } = null!;
-	public string Category { get; set; } = null!;
-	public string BelongsToDepartment { get; set; } = null!;
-	public string Notes { get; set; } = null!;
-	public bool IsRegular { get; set; }
-	public bool Eligible { get; set; }
-	public bool IsActive { get; set; }
+        public long Id { get; set; }
+        public int SerialNumber { get; set; }
+        public int Balance { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
+        public string Category { get; set; } = null!;
+        public string BelongsToDepartment { get; set; } = null!;
+        public string Notes { get; set; } = null!;
+        public bool IsRegular { get; set; }
+        public bool Eligible { get; set; }
+        public bool IsActive { get; set; }
 
-	public virtual ICollection<Reservation> Reservations { get; set; }
+        public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; }
+        public virtual ICollection<Reservation> Reservations { get; set; }
+    }
 }

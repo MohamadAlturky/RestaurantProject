@@ -38,4 +38,7 @@ public class CustomerDTO
 	[Required]
     public bool IsActive { get; set; }
 
+	[Required]
+	public string Password { get; set; } = string.Empty;
+
 }

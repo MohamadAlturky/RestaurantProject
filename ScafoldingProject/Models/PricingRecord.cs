@@ -1,9 +1,13 @@
-﻿namespace ScafoldingProject.Models;
+﻿using System;
+using System.Collections.Generic;
 
-public partial class PricingRecord
+namespace ScafoldingProject.Models
 {
-	public long Id { get; set; }
-	public int Price { get; set; }
-	public string CustomerTypeValue { get; set; } = null!;
-	public string MealTypeValue { get; set; } = null!;
+    public partial class PricingRecord
+    {
+        public long Id { get; set; }
+        public int Price { get; set; }
+        public string CustomerTypeValue { get; set; } = null!;
+        public string MealTypeValue { get; set; } = null!;
+    }
 }

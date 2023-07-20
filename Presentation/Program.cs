@@ -1,7 +1,5 @@
 using Domain.Meals.Repositories;
-//using Infrastructure.DataAccess.UnitOfWork;
 using MediatR;
-//using Presentation.Mappers;
 using SharedKernal.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -16,6 +14,14 @@ using Infrastructure.DataAccess.UnitOfWork;
 using Presentation.Mappers;
 using Domain.Shared.Repositories;
 using Infrastructure.PricingRecordsPersistance.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Infrastructure.Models;
+using Presentation.JWTOptionsSetup;
+using Presentation.JWTBearerOptionsSetup;
+using Infrastructure.Authentication.JWTProvider;
+using Infrastructure;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,14 +42,75 @@ builder.Services.AddScoped<IMapper, Mapper>();
 
 Assembly[] assembliesForConfigureMediatR = new Assembly[]
 {
-	typeof(ApplicationAssemblyReference).Assembly};
+	typeof(ApplicationAssemblyReference).Assembly,
+	typeof(InfrastructureAssemblyReference).Assembly
+};
 
 builder.Services.AddMediatR(assembliesForConfigureMediatR);
 
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+	c.SwaggerDoc("v1", new OpenApiInfo
+	{
+		Title = "Auth",
+		Version = "v1"
+	});
+	c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+	{
+		In = ParameterLocation.Header,
+		Description = "please",
+		Name = "auth",
+		Type = SecuritySchemeType.Http,
+		BearerFormat = "JWT",
+		Scheme = "bearer"
+	});
+});
+
+
+
+
+// JWT
+
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer();
+
+
+builder.Services.AddScoped<IJWTProvider, JWTProvider>();
+
+
+
+// identity with user manager
+
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+{
+	options.SignIn.RequireConfirmedPhoneNumber = false;
+	options.SignIn.RequireConfirmedEmail = false;
+}).AddEntityFrameworkStores<RestaurantContext>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+	// Password settings.
+	options.Password.RequireDigit = false;
+	options.Password.RequireLowercase = false;
+	options.Password.RequireNonAlphanumeric = false;
+	options.Password.RequireUppercase = false;
+	options.Password.RequiredLength = 0;
+	options.Password.RequiredUniqueChars = 0;
+	//// Lockout settings.
+	//options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+	//options.Lockout.MaxFailedAccessAttempts = 5;
+	//options.Lockout.AllowedForNewUsers = true;
+
+	// User settings.
+	options.User.RequireUniqueEmail = false;
+});
+
 
 var app = builder.Build();
 
@@ -56,6 +123,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
