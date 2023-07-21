@@ -4,6 +4,7 @@ using Infrastructure.DataAccess.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(RestaurantContext))]
-    partial class RestaurantContextModelSnapshot : ModelSnapshot
+    [Migration("20230721073140_ff")]
+    partial class ff
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -345,32 +347,26 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SerialNumber")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("SerialNumber")
-                        .IsUnique();
-
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("Infrastructure.Authentication.Models.UserRole", b =>
+            modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.Property<int>("RoleId")
+                    b.Property<int>("RolesId")
                         .HasColumnType("int");
 
-                    b.Property<long>("UserId")
+                    b.Property<long>("UsersId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("RoleId", "UserId");
+                    b.HasKey("RolesId", "UsersId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UsersId");
 
-                    b.ToTable("UserRole");
+                    b.ToTable("RoleUser");
                 });
 
             modelBuilder.Entity("Domain.Reservations.Aggregate.Reservation", b =>
@@ -429,17 +425,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Infrastructure.Authentication.Models.UserRole", b =>
+            modelBuilder.Entity("RoleUser", b =>
                 {
                     b.HasOne("Infrastructure.Authentication.Models.Role", null)
                         .WithMany()
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Authentication.Models.User", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

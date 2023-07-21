@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataAccess.DBContext;
-public class RestaurantContext : IdentityDbContext
+public class RestaurantContext : DbContext
 {
 	public RestaurantContext(DbContextOptions<RestaurantContext> options)
 			: base(options)
@@ -18,7 +17,6 @@ public class RestaurantContext : IdentityDbContext
 	}
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
-		base.OnModelCreating(builder);
 		builder.ApplyConfigurationsFromAssembly(typeof(RestaurantContext).Assembly);
 	}
 }

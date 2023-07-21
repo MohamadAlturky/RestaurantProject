@@ -1,7 +1,7 @@
-﻿using Infrastructure.Models;
+﻿using Infrastructure.Authentication.Models;
 
 namespace Infrastructure.Authentication.JWTProvider;
 public interface IJWTProvider
 {
-	string Generate(ApplicationUser user);
+	string Generate(User user);
 }

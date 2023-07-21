@@ -3,10 +3,13 @@ using Application.Meals.UseCases.GetMealEntriesByDate;
 using Application.Meals.UseCases.PrepareNewMeal;
 using Application.UseCases.Meals.Create;
 using Application.UseCases.Meals.GetAll;
+using Infrastructure.Authentication.Permissions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.ApiModels.Meals;
 using Presentation.Mappers;
+using Presentation.PermissionsContainer;
 using SharedKernal.Utilities.Errors;
 using SharedKernal.Utilities.Result;
 
@@ -51,8 +54,9 @@ public class MealsController : APIController
 		}
 	}
 
-
 	[HttpGet("GetAllMeals")]
+	[HasPermission(AuthorizationPermissions.ReadMeals)]
+	//[Authorize]
 	public async Task<IActionResult> GetAllMeals()
 	{
 		var response = await _sender.Send(new GetMealsQuery());

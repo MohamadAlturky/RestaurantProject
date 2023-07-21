@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.19" />
+		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.19" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.19" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.19">
 			<PrivateAssets>all</PrivateAssets>

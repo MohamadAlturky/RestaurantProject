@@ -6,13 +6,9 @@ using Application.UseCases.Customers.GetByFilter;
 using Application.UseCases.Customers.GetPage;
 using Application.UseCases.Customers.IncreaseCustomerBalance;
 using Domain.Customers.Aggregate;
-using Infrastructure.Authentication.Register;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Presentation.ApiModels.Customers;
 using Presentation.Mappers;
-using SharedKernal.Utilities.Errors;
 using SharedKernal.Utilities.Result;
 
 namespace Presentation.Controllers;
@@ -20,7 +16,6 @@ namespace Presentation.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
 public class CustomersController : APIController
 {
 	private readonly ILogger<CustomersController> _logger;
@@ -30,37 +25,37 @@ public class CustomersController : APIController
 		_logger = logger;
 	}
 
-	[HttpPost("Create")]
-	public async Task<IActionResult> Create([FromBody] CustomerDTO customer)
-	{
-		if (!ModelState.IsValid)
-		{
-			return BadRequest(Result.Failure(new Error("Model State", "Model State is not valid")));
-		}
+	//[HttpPost("Create")]
+	//public async Task<IActionResult> Create([FromBody] CustomerDTO customer)
+	//{
+	//	if (!ModelState.IsValid)
+	//	{
+	//		return BadRequest(Result.Failure(new Error("Model State", "Model State is not valid")));
+	//	}
 
-		try
-		{
-			Result response = await _sender.Send(new CreateCustomerCommand(_mapper.Map(customer)));
+	//	try
+	//	{
+	//		Result response = await _sender.Send(new CreateCustomerCommand(_mapper.Map(customer)));
 
-			if (response.IsFailure)
-			{
-				return BadRequest(response);
-			}
-			Result<Customer> insertedCustomer = await _sender.Send(new GetCustomerBySerialNumberQuery(customer.SerialNumber));
+	//		if (response.IsFailure)
+	//		{
+	//			return BadRequest(response);
+	//		}
+	//		Result<Customer> insertedCustomer = await _sender.Send(new GetCustomerBySerialNumberQuery(customer.SerialNumber));
 
-			var registerResponse =  await _sender.Send(new RegisterNewCustomerCommand(insertedCustomer.Value,customer.Password));
+	//		var registerResponse =  await _sender.Send(new RegisterNewCustomerCommand(insertedCustomer.Value,customer.Password));
 
-			if (registerResponse.IsFailure)
-			{
-				return BadRequest(registerResponse);
-			}
-			return Ok(response);
-		}
-		catch (Exception exception)
-		{
-			return BadRequest(Result.Failure(new Error("Model State", exception.Message)));
-		}
-	}
+	//		if (registerResponse.IsFailure)
+	//		{
+	//			return BadRequest(registerResponse);
+	//		}
+	//		return Ok(response);
+	//	}
+	//	catch (Exception exception)
+	//	{
+	//		return BadRequest(Result.Failure(new Error("Model State", exception.Message)));
+	//	}
+	//}
 
 
 	[HttpGet("GetAllCustomers")]

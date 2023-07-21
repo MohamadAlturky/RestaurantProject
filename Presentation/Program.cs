@@ -15,13 +15,16 @@ using Presentation.Mappers;
 using Domain.Shared.Repositories;
 using Infrastructure.PricingRecordsPersistance.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Infrastructure.Models;
 using Presentation.JWTOptionsSetup;
-using Presentation.JWTBearerOptionsSetup;
 using Infrastructure.Authentication.JWTProvider;
 using Infrastructure;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authorization;
+using Infrastructure.Authorization.AuthorizationPolicyProvider;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Infrastructure.Authorization.AuthorizationHandlers;
+using Infrastructure.Authorization.PermissionsService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,9 +66,23 @@ builder.Services.AddSwaggerGen(c =>
 		In = ParameterLocation.Header,
 		Description = "please",
 		Name = "auth",
-		Type = SecuritySchemeType.Http,
+		Type = SecuritySchemeType.ApiKey,
 		BearerFormat = "JWT",
-		Scheme = "bearer"
+		Scheme = "Bearer"
+	});
+	c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+	{
+		{
+			new OpenApiSecurityScheme()
+			{
+				Reference = new OpenApiReference()
+				{
+					Type=ReferenceType.SecurityScheme,
+					Id="Bearer"
+				}
+			},
+			new string[]{ }
+		}
 	});
 });
 
@@ -75,41 +92,54 @@ builder.Services.AddSwaggerGen(c =>
 // JWT
 
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
-builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+//builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-	.AddJwtBearer();
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//	.AddJwtBearer(options=>
+//				  options.TokenValidationParameters = new()
+//				  {
+//				  	ValidateIssuer = false,
+//				  	//ValidateAudience = true,
+//				  	ValidateLifetime = true,
+//				  	ValidateIssuerSigningKey = true,
+//				  	ValidIssuer = "Alkhall",
+//				  	ValidAudience = "Jaffar",
+//				  	IssuerSigningKey =
+//				  		new SymmetricSecurityKey(Encoding.UTF8.
+//				  		GetBytes("_AboRamezSecretKey12345"))
+//				  }
+//);
+
+builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+
+			   .AddJwtBearer(options =>
+			   {
+				   options.TokenValidationParameters = new TokenValidationParameters
+				   {
+					   ValidateIssuerSigningKey = true,
+					   IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("AboRamezSecretKey12345")),
+					   ValidateIssuer = false,
+					   ValidateAudience = false,
+					   RequireExpirationTime = false,
+					   ValidateLifetime = true
+				   };
+			   });
 
 
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//	.AddJwtBearer();
 builder.Services.AddScoped<IJWTProvider, JWTProvider>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 
+builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
-
-// identity with user manager
-
-builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
-{
-	options.SignIn.RequireConfirmedPhoneNumber = false;
-	options.SignIn.RequireConfirmedEmail = false;
-}).AddEntityFrameworkStores<RestaurantContext>();
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-	// Password settings.
-	options.Password.RequireDigit = false;
-	options.Password.RequireLowercase = false;
-	options.Password.RequireNonAlphanumeric = false;
-	options.Password.RequireUppercase = false;
-	options.Password.RequiredLength = 0;
-	options.Password.RequiredUniqueChars = 0;
-	//// Lockout settings.
-	//options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-	//options.Lockout.MaxFailedAccessAttempts = 5;
-	//options.Lockout.AllowedForNewUsers = true;
-
-	// User settings.
-	options.User.RequireUniqueEmail = false;
-});
 
 
 var app = builder.Build();

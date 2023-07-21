@@ -1,5 +1,6 @@
-﻿using Infrastructure.Authentication.JWTOptions;
-using Infrastructure.Models;
+﻿using Infrastructure.Authentication.Claims;
+using Infrastructure.Authentication.JWTOptions;
+using Infrastructure.Authentication.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,11 +17,12 @@ public class JWTProvider : IJWTProvider
 		_options = options.Value;
 	}
 
-	public string Generate(ApplicationUser user)
+	public string Generate(User user)
 	{
 		Claim[] Claims = new Claim[]
 		{
-			new Claim("id",user.Id)
+			new Claim(CustomClaims.Id,user.Id.ToString()),
+			new Claim(CustomClaims.SerialNumber,user.SerialNumber.ToString())
 		};
 
 		SigningCredentials signingCredentials = new SigningCredentials(
@@ -33,7 +35,7 @@ public class JWTProvider : IJWTProvider
 			_options.Audience,
 			Claims,
 			null,
-			DateTime.UtcNow.AddMinutes(30),
+			DateTime.UtcNow.AddHours(2),
 			signingCredentials);
 
 		return new JwtSecurityTokenHandler().WriteToken(token);
